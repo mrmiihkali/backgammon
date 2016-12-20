@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link id="board_style" rel="stylesheet" type="text/css" href="board_style_greenblue.css">
+</head>
+<body>
+
+<script src="board_renderer_svg.js"></script>
+<script src="gamestate.js"></script>
+
+<div id="board" class="board" style="height:200px;width:300px;">
+</div>
+
+<select id="select_style" onchange="style_changed()">
+  <option value="greenblue">Green&Blue</option>
+  <option value="blackwhite">Black&White</option>
+</select>
+
+<script>
+function set_board_style(style) {
+  href = "board_style_" + style + ".css"
+  var cssId = 'board_style';
+  var head  = document.getElementsByTagName('head')[0];
+  var link  = document.createElement('link');
+  link.id   = cssId;
+  link.rel  = 'stylesheet';
+  link.type = 'text/css';
+  link.href = href;
+  link.media = 'all';
+  head.appendChild(link);
+}
+
+function style_changed() {
+  style = document.getElementById("select_style").value
+  set_board_style(style)  
+}
+
+move_checker = function(event) {
+  if (enable_actions > 1)
+    return
+
+  pip = event.currentTarget.owner
+
+  from = pip.pip
+
+  if (gameState.checkers[from] == 0)
+    return
+
+  to_move = gameState.to_move()
+  if (to_move < 0)
+    return
+
+  checker = gameState.checkers[from] < 0 ? 1 : 0
+  player = gameState.on_turn()
+
+  if (checker != player)
+    return;
+
+  if (player == 0)
+    to = from - to_move
+  else
+    to = from + to_move
+
+  old_stack = gameState.checkers[to]
+
+  if (gameState.move(from, to, player) == false)
+    return
+
+  gameState.moved()
+
+  enable_actions += 1
+  board.move_checker(from, to, gameState, end_move_anim)
+}
+
+function end_move_anim() {
+  enable_actions -= 1
+}
+
+function end_move() {
+  if (enable_actions != 0)
+    return
+
+  gameState.change_player()
+  gameState.roll()
+  board.update_game_state()
+}
+
+var enable_actions = 0
+var gameState = new GameState()
+var board = new Board()
+board.init(document.getElementById("board"))
+board.set_pip_click_handler(move_checker)
+board.set_dice_click_handler(end_move)
+board.update_game_state()
+
+</script>
+
+</body>
+</html>

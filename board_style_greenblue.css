@@ -1,0 +1,44 @@
+
+.board {
+  border-color: black;
+  border-style: solid;
+  border-width: 1px;
+  position: relative;
+  background-color: lightgray;
+}
+
+.board-element {
+  position: absolute;
+}
+
+.pip[data-style="black"] {
+  fill: blue;
+}
+
+.pip[data-style="white"] {
+  fill: green;
+}
+
+.checker[data-style="black"] {
+  fill: lightblue;
+  stroke: black;
+  stroke-width: 1
+}
+
+.checker[data-style="white"] {
+  fill: lightgreen;
+  stroke: black;
+  stroke-width: 1
+}
+
+.die[data-style="black"] {
+  fill: lightblue;
+  stroke: black;
+  stroke-width: 1
+}
+
+.die[data-style="white"] {
+  fill: lightgreen;
+  stroke: black;
+  stroke-width: 1
+}
