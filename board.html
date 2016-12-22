@@ -11,6 +11,7 @@
 <div id="board" class="board" style="height:200px;width:300px;">
 </div>
 
+<button id="swap_dice" onclick="swap_dice()">Swap dice</button>
 <select id="select_style" onchange="style_changed()">
   <option value="greenblue">Green&Blue</option>
   <option value="blackwhite">Black&White</option>
@@ -36,43 +37,50 @@ function style_changed() {
 }
 
 move_checker = function(event) {
-  if (enable_actions > 1)
+  if (enable_actions > 0)
     return
+  
+  var from = event.currentTarget.owner.pip
 
-  pip = event.currentTarget.owner
+  var allowed = gameState.allowed_moves(from)
 
-  from = pip.pip
-
-  if (gameState.checkers[from] == 0)
+  console.log(gameState.dice_moved, allowed)
+  if (gameState.dice_moved == 0 &&
+      allowed[0].allowed == false &&
+      allowed[1].allowed == true) {
+    console.log("swapping")
+    gameState.swap_dice()
+  }
+//  allowed = gameState.allowed_moves(from)
+//  if (allowed[0].allowed == false) {
+//    gameState.end_turn()
+//    board.update_game_state()
+//    return;
+//  }
+  var move = gameState.move_from(from)
+  
+  if (move == null)
     return
-
-  to_move = gameState.to_move()
-  if (to_move < 0)
-    return
-
-  checker = gameState.checkers[from] < 0 ? 1 : 0
-  player = gameState.on_turn()
-
-  if (checker != player)
-    return;
-
-  if (player == 0)
-    to = from - to_move
-  else
-    to = from + to_move
-
-  old_stack = gameState.checkers[to]
-
-  if (gameState.move(from, to, player) == false)
-    return
-
-  gameState.moved()
 
   enable_actions += 1
-  board.move_checker(from, to, gameState, end_move_anim)
+  
+  var context = {
+    move: move
+  }
+  
+  board.move_checker(move[0].from, move[0].to, gameState, end_move_anim.bind(context))
 }
 
-function end_move_anim() {
+function end_move_anim() {  
+  if (this.move.length == 2) {
+    board.move_checker(this.move[1].from, this.move[1].to, gameState, end_move_anim_2)
+  }
+  else {
+    enable_actions -= 1
+  }
+}
+
+function end_move_anim_2() {
   enable_actions -= 1
 }
 
@@ -85,6 +93,12 @@ function end_move() {
   board.update_game_state()
 }
 
+function swap_dice() {
+  if (gameState.dice_moved == 0) {
+    gameState.swap_dice()
+    board.update_game_state()
+  }
+}
 var enable_actions = 0
 var gameState = new GameState()
 var board = new Board()
