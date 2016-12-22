@@ -44,19 +44,13 @@ move_checker = function(event) {
 
   var allowed = gameState.allowed_moves(from)
 
-  console.log(gameState.dice_moved, allowed)
   if (gameState.dice_moved == 0 &&
       allowed[0].allowed == false &&
       allowed[1].allowed == true) {
-    console.log("swapping")
     gameState.swap_dice()
+    board.update_dice()
   }
-//  allowed = gameState.allowed_moves(from)
-//  if (allowed[0].allowed == false) {
-//    gameState.end_turn()
-//    board.update_game_state()
-//    return;
-//  }
+
   var move = gameState.move_from(from)
   
   if (move == null)
@@ -68,12 +62,12 @@ move_checker = function(event) {
     move: move
   }
   
-  board.move_checker(move[0].from, move[0].to, gameState, end_move_anim.bind(context))
+  board.move_checker(move[0].from, move[0].to, end_move_anim.bind(context))
 }
 
 function end_move_anim() {  
   if (this.move.length == 2) {
-    board.move_checker(this.move[1].from, this.move[1].to, gameState, end_move_anim_2)
+    board.move_checker(this.move[1].from, this.move[1].to, end_move_anim_2)
   }
   else {
     enable_actions -= 1
@@ -88,17 +82,21 @@ function end_move() {
   if (enable_actions != 0)
     return
 
-  gameState.change_player()
-  gameState.roll()
+  if (gameState.can_move())
+    return
+
+  gameState.end_turn()
+
   board.update_game_state()
 }
 
 function swap_dice() {
   if (gameState.dice_moved == 0) {
     gameState.swap_dice()
-    board.update_game_state()
+    board.update_dice()
   }
 }
+
 var enable_actions = 0
 var gameState = new GameState()
 var board = new Board()
@@ -107,6 +105,7 @@ board.set_pip_click_handler(move_checker)
 board.set_dice_click_handler(end_move)
 board.update_game_state()
 
+console.log(0 % 5, 4 % 5, 5 % 5)
 </script>
 
 </body>

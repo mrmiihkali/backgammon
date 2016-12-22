@@ -10,6 +10,7 @@ GameState.prototype.reset = function() {
   // player0 = white, player1 = black
   this.checkers = new Array(28).fill(0)
 
+  // Init state
   this.checkers[0] = -2
   this.checkers[5] = 5
   this.checkers[7] = 3
@@ -18,6 +19,20 @@ GameState.prototype.reset = function() {
   this.checkers[16] = -3
   this.checkers[18] = -5
   this.checkers[23] = 2
+
+  // Bear off testing
+//  this.checkers[0] = 2
+//  this.checkers[1] = 2
+//  this.checkers[2] = 2
+//  this.checkers[3] = 2
+//  this.checkers[4] = 0
+//  this.checkers[5] = 0
+//  this.checkers[18] = -2
+//  this.checkers[19] = -2
+//  this.checkers[20] = -2
+//  this.checkers[21] = -2
+//  this.checkers[22] = -2
+//  this.checkers[23] = -2
 
   this.dice = []
   this.roll()
@@ -32,14 +47,33 @@ GameState.prototype.allowed_moves = function(from) {
   var moves = []
   for (d in this.dice) {
     var to = this.to_pip(from, this.dice[d], player)
-    var allowed = this.allowed_move(from, to, player)
+    var allowed = this.allowed_move(from, this.dice[d], player)
     moves.push({to: to, allowed: allowed})
   }
 
   return moves
 }
 
-GameState.prototype.allowed_move = function(from, to, player) {
+GameState.prototype.can_move = function() {
+  var player = this.on_turn()
+  var to_move = this.to_move()
+  
+  if (to_move == -1)
+    return false
+
+  for (var i = 0; i < 26; i++) {
+    if (this.allowed_move(i, to_move, player))
+      return true
+  }
+
+  return false
+}
+
+GameState.prototype.allowed_move = function(from, to_move, player) {
+  if (to_move == -1)
+    return false
+
+  var to = this.to_pip(from, to_move, player);
   // Make more strict; check also player...
   if (from < 0 || from > 27 || to < 0 || to > 27) 
     return false
@@ -66,11 +100,11 @@ GameState.prototype.allowed_move = function(from, to, player) {
     return false
   }
 
-  var player_in_home = true
+  var last_checker_pip = 1000
   if (player == 0) {
     for (var i = 23; i >= 0; i--) {
       if (this.checkers[i] > 0) {
-        player_in_home = false
+        last_checker_pip = i
         break
       }
     }
@@ -78,23 +112,31 @@ GameState.prototype.allowed_move = function(from, to, player) {
   else {
     for (var i = 0; i < 24; i++) {
       if (this.checkers[i] < 0) {
-        player_in_home = false
+        last_checker_pip = i
         break
       }
     }
   }
 
-  // Is bear of allowed?
-  if (!player_in_home &&
-      ((to == 26 && player == 0) ||
-       (to == 27 && player == 1)))
-    return false
 
   // Should bar be moved first?
   bar_checkers = player == 0 ? this.checkers[24] : this.checkers[25]
   if ((bar_checkers > 0 && from != 24) ||
       (bar_checkers < 0 && from != 25))
     return false
+  
+  // Is bear of allowed?
+  if (to == 26 || to == 27) {
+    if ((last_checker_pip > 6 && player == 0) ||
+        (last_checker_pip < 18 && player == 1))
+      return false
+
+    if (player == 0 && last_checker_pip > from && (from + 1) != to_move)
+      return false
+
+    if (player == 1 && last_checker_pip < from && (24 - from) != to_move)
+      return false
+  }
 
   return true
 }
@@ -129,7 +171,7 @@ GameState.prototype.move_from = function(from) {
 
   var to = this.to_pip(from, to_move, player);
 
-  if (this.allowed_move(from, to, player) == false)
+  if (this.allowed_move(from, to_move, player) == false)
     return null
 
   move = gameState.move(from, to, player)
@@ -176,7 +218,7 @@ GameState.prototype.roll = function() {
   this.dice.push(Math.max(die1, die2))
   this.dice.push(Math.min(die1, die2))
   
-  if (this.dice[0] > this.dice[1])
+  if (this.dice[0] < this.dice[1])
     this.swap_dice()
 
   if (this.dice[0] == this.dice[1]) {

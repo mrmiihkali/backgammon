@@ -22,13 +22,13 @@
 .checker[data-style="black"] {
   fill: lightblue;
   stroke: black;
-  stroke-width: 1
+  stroke-width: 4
 }
 
 .checker[data-style="white"] {
   fill: lightgreen;
   stroke: black;
-  stroke-width: 1
+  stroke-width: 4
 }
 
 .die[data-style="black"] {
