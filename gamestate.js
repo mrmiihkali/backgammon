@@ -5,34 +5,34 @@ GameState = function() {
 
 GameState.prototype.reset = function() {
   // 0-5 = white home, 18-23 = black home
-  // pip[24] = black bar, pip[25] = white bar, pip[26] = white off, pip[27] = black off
+  // pip[25] = black bar, pip[24] = white bar, pip[26] = white off, pip[27] = black off
   // white checkers = positive, black checkers = negative
   // player0 = white, player1 = black
   this.checkers = new Array(28).fill(0)
 
   // Init state
-  this.checkers[0] = -2
-  this.checkers[5] = 5
-  this.checkers[7] = 3
-  this.checkers[11] = -5
-  this.checkers[12] = 5
-  this.checkers[16] = -3
-  this.checkers[18] = -5
-  this.checkers[23] = 2
+//  this.checkers[0] = -2
+//  this.checkers[5] = 5
+//  this.checkers[7] = 3
+//  this.checkers[11] = -5
+//  this.checkers[12] = 5
+//  this.checkers[16] = -3
+//  this.checkers[18] = -5
+//  this.checkers[23] = 2
 
   // Bear off testing
-//  this.checkers[0] = 2
-//  this.checkers[1] = 2
-//  this.checkers[2] = 2
-//  this.checkers[3] = 2
-//  this.checkers[4] = 0
-//  this.checkers[5] = 0
-//  this.checkers[18] = -2
-//  this.checkers[19] = -2
-//  this.checkers[20] = -2
-//  this.checkers[21] = -2
-//  this.checkers[22] = -2
-//  this.checkers[23] = -2
+  this.checkers[0] = 2
+  this.checkers[1] = 2
+  this.checkers[2] = 2
+  this.checkers[3] = 2
+  this.checkers[4] = 0
+  this.checkers[5] = 0
+  this.checkers[18] = -2
+  this.checkers[19] = -2
+  this.checkers[20] = -2
+  this.checkers[21] = -2
+  this.checkers[22] = -2
+  this.checkers[23] = -2
 
   this.dice = []
   this.roll()
@@ -56,14 +56,16 @@ GameState.prototype.allowed_moves = function(from) {
 
 GameState.prototype.can_move = function() {
   var player = this.on_turn()
-  var to_move = this.to_move()
   
-  if (to_move == -1)
+  if (this.to_move() == -1)
     return false
 
-  for (var i = 0; i < 26; i++) {
-    if (this.allowed_move(i, to_move, player))
-      return true
+  for (var d = this.dice_moved; d < this.dice.length; d++) {
+    for (var i = 0; i < 26; i++) {
+      var to_move = this.dice[d]
+      if (this.allowed_move(i, to_move, player))
+        return true
+  }
   }
 
   return false
@@ -73,7 +75,11 @@ GameState.prototype.allowed_move = function(from, to_move, player) {
   if (to_move == -1)
     return false
 
+  if (from > 25) // Already bore off
+    return false
+
   var to = this.to_pip(from, to_move, player);
+
   // Make more strict; check also player...
   if (from < 0 || from > 27 || to < 0 || to > 27) 
     return false
@@ -118,13 +124,13 @@ GameState.prototype.allowed_move = function(from, to_move, player) {
     }
   }
 
-
   // Should bar be moved first?
   bar_checkers = player == 0 ? this.checkers[24] : this.checkers[25]
   if ((bar_checkers > 0 && from != 24) ||
-      (bar_checkers < 0 && from != 25))
+      (bar_checkers < 0 && from != 25)) {
     return false
-  
+  }
+
   // Is bear of allowed?
   if (to == 26 || to == 27) {
     if ((last_checker_pip > 6 && player == 0) ||

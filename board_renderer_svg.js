@@ -28,82 +28,50 @@ Board.prototype.init = function(container, gameSate) {
 }
 
 Board.prototype.create_pips = function() {
+
+  function create_pip(board, x, y, w, h, pipnum, black, type) {
+    var pip = new Pip(board, x, y, w, h, pipnum, black, type)
+    var e = document.createElement("div")
+    pip.bind(e)
+    board.container.appendChild(e)
+    board.pips[pipnum] = pip
+  }
+
+  black = true
+  pipnum = 0  
+
   var w = this.container.clientWidth / 14
   var h = (this.container.clientHeight / 12) * 5
   var y = (this.container.clientHeight / 12) * 7
-  var x = this.container.clientWidth - w
+  var x_r = this.container.clientWidth - w
+  var x = -w
 
-  black = true
-
-  pipnum = 0  
+  // Pips
   for (var i = 0; i < 13; i ++, pipnum++) {
-    x -= w
-    if (i == 6) {
-      pipnum--
-      continue
-    }
-    var pip = new Pip(board, x, y, w, h, pipnum, black, 'normal')
-    e = document.createElement("div")
-    pip.bind(e)
-    this.container.appendChild(e)
-    this.pips.push(pip)
-    black = !black
-  }
-  
-  black = true
-  y = 0
-  x = -w
-  pipnum = 12
-  for (var i = 0; i < 13; i++, pipnum++) {
+    x_r -= w
     x += w
     if (i == 6) {
       pipnum--
       continue
     }
-    var pip = new Pip(board, x, y, w, h, pipnum, black, 'normal')
-    e = document.createElement("div")
-    pip.bind(e)
-    this.container.appendChild(e)
-    this.pips.push(pip)
+    // Down
+    create_pip(this, x_r, y, w, h, pipnum, black, 'normal')
+    // Up
+    create_pip(this, x, 0, w, h, pipnum + 12, black, 'normal')
     black = !black
   }
+  
+  // White bar
+  create_pip(this, w * 6, this.container.clientHeight / 2, w, h, 25, false, 'bar')
 
   // Black bar
-  y = this.container.clientHeight / 2
-  x = w * 6
-  var pip = new Pip(board, x, y, w, h, 24, black, 'bar')
-  e = document.createElement("div")
-  pip.bind(e)
-  this.container.appendChild(e)
-  this.pips.push(pip)
+  create_pip(this, w * 6, 0, w, h, 24, true, 'bar')
 
-  // White bar
-  y = 0
-  var pip = new Pip(board, x, y, w, h, 25, black, 'bar')
-  e = document.createElement("div")
-  pip.bind(e)
-  this.container.appendChild(e)
-  this.pips.push(pip)
-
-  h = (this.container.clientHeight / 12) * 5
-  y = (this.container.clientHeight / 12) * 7
-  
   // White home
-  x = w * 13  
-  var pip = new Pip(board, x, y, w, h, 26, false, 'off')
-  e = document.createElement("div")
-  pip.bind(e)
-  this.container.appendChild(e)
-  this.pips.push(pip)
+  create_pip(this, w * 13, y, w, h, 26, false, 'off')
 
   // Black home
-  y = 0
-  x = w * 13
-  var pip = new Pip(board, x, y, w, h, 27, true, 'off')
-  e = document.createElement("div")
-  pip.bind(e)
-  this.container.appendChild(e)
-  this.pips.push(pip)
+  create_pip(this, w * 13, 0, w, h, 27, true, 'off')
 }
 
 Board.prototype.create_dice = function() {
@@ -184,7 +152,7 @@ Board.prototype.move_checker = function(from, to, transitionCb) {
   
   this.container.appendChild(element)
 
-  to_pos = this.checker_pos_on_board(to_pip.pip, Math.abs(this.gameState.checkers[to]) - 1)
+  var to_pos = this.checker_pos_on_board(to_pip.pip, Math.abs(this.gameState.checkers[to]) - 1)
   
   var context = {board: this, 
     to_pip: to_pip, 
@@ -198,17 +166,30 @@ Board.prototype.move_checker = function(from, to, transitionCb) {
 }  
 
 Board.prototype.start_checker_transition = function() {
+  
   this.element.addEventListener("transitionend", this.board.finalize_checker_transition)
-  this.element.style.transition = 'left 0.5s, top 0.5s'
-  oldleft = this.element.style.left
-  oldtop = this.element.style.top
-  this.element.style.left = to_pos.x + this.board.checker_offset + 'px'
-  this.element.style.top = to_pos.y + 'px'
+  this.element.style.transition = 'left 0.5s, top 0.5s, width 0.5s, height 0.5s'
   this.element.event_context = this
+  
+  var oldleft = this.element.style.left
+  var oldtop = this.element.style.top
+  var oldheight = this.element.style.height
+  var oldwidth = this.element.style.width
+
+  this.element.style.left = this.to_pos.x + this.board.checker_offset + 'px'
+  this.element.style.top = this.to_pos.y + 'px'
+  this.element.style.width = this.to_pos.w + 'px'
+  this.element.style.height = this.to_pos.h + 'px'
+  
+
   this.element.transition_count = 0
   if (oldleft != this.element.style.left)
     this.element.transition_count++
   if (oldtop != this.element.style.top)
+    this.element.transition_count++
+  if (oldwidth != this.element.style.width)
+    this.element.transition_count++
+  if (oldheight != this.element.style.height)
     this.element.transition_count++
 }
 
@@ -224,7 +205,7 @@ Board.prototype.finalize_checker_transition = function(event) {
 
 Board.prototype.checker_pos_on_board = function(pip, numCheckers) {
   h = this.checker_size
-
+  w = this.checker_size
   pip = this.pips[pip]
   x = pip.x
   if (pip.pip < 12) {
@@ -233,14 +214,22 @@ Board.prototype.checker_pos_on_board = function(pip, numCheckers) {
   else if (pip.pip < 24) {
     y = numCheckers * h
   }
-  else if (pip.pip == 24) {
+  else if (pip.pip == 25) {
     y = pip.y + (numCheckers) * h 
   }
-  else if (pip.pip == 25) {
+  else if (pip.pip == 24) {
     y = pip.y + pip.h - (numCheckers + 1) * h
   }
+  else if (pip.pip == 26) {
+    h = this.checker_size / 4
+    y = pip.y + pip.h - (numCheckers + 1) * h
+  }
+  else if (pip.pip == 27) {
+    h = this.checker_size / 4
+    y = pip.y + numCheckers * h
+  }
 
-  return {x: x, y: y}
+  return {x: x, y: y, w: w, h: h}
 }
 
 //********************************************************
@@ -303,7 +292,7 @@ Pip.prototype.set_checkers = function(num, black) {
   if (this.type == 'normal' || this.type == 'bar') {
     var y = this.h - this.board.checker_size
     var dir = -this.board.checker_size
-    if ((this.pip > 11 && this.pip < 24) || this.pip == 24) {
+    if ((this.pip > 11 && this.pip < 24) || this.pip == 25) {
       dir = this.board.checker_size
       y = 0
     }
