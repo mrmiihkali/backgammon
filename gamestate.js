@@ -11,28 +11,28 @@ GameState.prototype.reset = function() {
   this.checkers = new Array(28).fill(0)
 
   // Init state
-//  this.checkers[0] = -2
-//  this.checkers[5] = 5
-//  this.checkers[7] = 3
-//  this.checkers[11] = -5
-//  this.checkers[12] = 5
-//  this.checkers[16] = -3
-//  this.checkers[18] = -5
-//  this.checkers[23] = 2
+  this.checkers[0] = -2
+  this.checkers[5] = 5
+  this.checkers[7] = 3
+  this.checkers[11] = -5
+  this.checkers[12] = 5
+  this.checkers[16] = -3
+  this.checkers[18] = -5
+  this.checkers[23] = 2
 
   // Bear off testing
-  this.checkers[0] = 2
-  this.checkers[1] = 2
-  this.checkers[2] = 2
-  this.checkers[3] = 2
-  this.checkers[4] = 0
-  this.checkers[5] = 0
-  this.checkers[18] = -2
-  this.checkers[19] = -2
-  this.checkers[20] = -2
-  this.checkers[21] = -2
-  this.checkers[22] = -2
-  this.checkers[23] = -2
+//  this.checkers[0] = 2
+//  this.checkers[1] = 2
+//  this.checkers[2] = 2
+//  this.checkers[3] = 2
+//  this.checkers[4] = 0
+//  this.checkers[5] = 0
+//  this.checkers[18] = -2
+//  this.checkers[19] = -2
+//  this.checkers[20] = -2
+//  this.checkers[21] = -2
+//  this.checkers[22] = -2
+//  this.checkers[23] = -2
 
   this.dice = []
   this.roll()
