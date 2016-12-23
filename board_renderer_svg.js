@@ -91,6 +91,56 @@ Board.prototype.create_dice = function() {
   }).bind(this))
 }
 
+Board.prototype.update_dice_style = function() {
+  var moved = this.gameState.dice_moved
+  var moves = this.gameState.dice.length
+  
+  var dim0
+  var dim1
+  if (moves == 2) {
+
+    dim0 = moved == 0 ? 0 : 2
+    dim1 = moved < 2 ? 0 : 2
+  }
+  else {
+    switch (moved) {
+      case 0: 
+        dim0 = 0
+        dim1 = 0
+        break
+      case 1:
+        dim0 = 1
+        dim1 = 0
+        break
+      case 2: 
+        dim0 = 2
+        dom1 = 0
+        break
+      case 3:
+        dim0 = 2
+        dim1 = 1
+        break
+      case 4:
+        dim0 = 2
+        dim1 = 2
+        break
+    }
+  }
+
+  if (this.gameState.on_turn() == 1) {
+    this.dice[0].set_used(dim0)
+    this.dice[1].set_used(dim1)
+    this.dice[2].set_used(0)
+    this.dice[3].set_used(0)
+  }
+  else {
+    this.dice[2].set_used(dim0)
+    this.dice[3].set_used(dim1)
+    this.dice[0].set_used(0)
+    this.dice[1].set_used(0)
+  }
+}
+
 Board.prototype.update_dice = function() {
   if (this.gameState.on_turn() == 0) {
 
@@ -107,6 +157,8 @@ Board.prototype.update_dice = function() {
     this.dice[0].show_with_value(this.gameState.dice[0])
     this.dice[1].show_with_value(this.gameState.dice[1])
   }
+
+  this.update_dice_style()
 }
 
 Board.prototype.update_game_state = function() {
@@ -200,6 +252,7 @@ Board.prototype.finalize_checker_transition = function(event) {
   context = event.currentTarget.event_context
   context.to_pip.set_checkers(context.to_pip.checkers.length + 1, context.from_checker.style == 'black')
   context.board.container.removeChild(context.element)
+
   setTimeout(context.callback.bind(context), 100)
 }
 
@@ -375,7 +428,7 @@ function Die(x, y, w, black) {
 
   this.value = 1
   this.style = black ? 'black' : 'white'
-
+  this.set_used(0) // 1 = half used, 2 = used    
 }
 
 Die.prototype.bind = function(element) {
@@ -384,15 +437,38 @@ Die.prototype.bind = function(element) {
 }
 
 Die.prototype.render = function() {
-   var svg = '<svg class="die board-element" data-style="' + this.style + '" style="width:100%;height:100%"' +
+   var svg = '<svg class="die board-element" data-style="' + this.style + '" data-dimmed="' + this.dimmed + '" style="width:100%;height:100%"' +
                     ' viewbox="0 0 100 100" preserveAspectRatio="none"> \
                 <rect x="0" y="0" width="100" height="100" rx="25" ry="25"/> \
                 <text x="50" y="50" dy="25" \
-                    style="text-anchor:middle;font-size:80;fill:black;stroke:black">' + this.value + '</text> \
+                    style="text-anchor:middle;font-size:80;fill:black;fill-opacity:1;stroke:black">' + this.value + '</text> \
             </svg>'
 
+  
   this.element.innerHTML = svg   
  
+}
+
+Die.prototype.set_used = function(val) {
+  switch (val) {
+    case 1:
+      this.dimmed = 'half'
+      break
+
+    case 2:
+      this.dimmed = 'full'
+      break
+
+    default:
+      this.dimmed = 'clear'
+  } 
+
+  if (this.element != null) {
+    var e = this.element.childNodes[0]
+    e.style.transition = 'fill-opacity 0.5s'
+    e.dataset.dimmed = this.dimmed
+
+  }
 }
 
 //********************************************************

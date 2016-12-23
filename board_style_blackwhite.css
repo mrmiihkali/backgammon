@@ -31,14 +31,42 @@
   stroke-width: 1  
 }
 
-.die[data-style="black"] {
+.die[data-style="black"][data-dimmed="clear"] {
   fill: lightgray;
   stroke: black;
   stroke-width: 1
 }
 
-.die[data-style="white"] {
+.die[data-style="white"][data-dimmed="clear"] {
   fill: darkgray;
+  stroke: black;
+  stroke-width: 1
+}
+
+.die[data-style="black"][data-dimmed="half"] {
+  fill: lightgray;
+  fill-opacity: 0.6;
+  stroke: black;
+  stroke-width: 1
+}
+
+.die[data-style="white"][data-dimmed="half"] {
+  fill: darkgray;
+  fill-opacity: 0.6;
+  stroke: black;
+  stroke-width: 1
+}
+
+.die[data-style="black"][data-dimmed="full"] {
+  fill: lightgray;
+  fill-opacity: 0.4;  
+  stroke: black;
+  stroke-width: 1
+}
+
+.die[data-style="white"][data-dimmed="full"] {
+  fill: darkgray;
+  fill-opacity: 0.4;
   stroke: black;
   stroke-width: 1
 }

@@ -71,11 +71,13 @@ function end_move_anim() {
   }
   else {
     enable_actions -= 1
+    board.update_dice_style()    
   }
 }
 
 function end_move_anim_2() {
   enable_actions -= 1
+  board.update_dice_style()
 }
 
 function end_move() {
