@@ -204,10 +204,16 @@ Board.prototype.finalize_checker_transition = function(event) {
 }
 
 Board.prototype.checker_pos_on_board = function(pip, numCheckers) {
-  h = this.checker_size
-  w = this.checker_size
-  pip = this.pips[pip]
-  x = pip.x
+  var h = this.checker_size
+  var w = this.checker_size
+  var pip = this.pips[pip]
+  var x = pip.x
+  var space = 0
+  if (numCheckers > 4)
+    space++
+  if (numCheckers > 9)
+    space++
+
   if (pip.pip < 12) {
     y = pip.y + pip.h - (numCheckers + 1) * h
   }
@@ -222,11 +228,11 @@ Board.prototype.checker_pos_on_board = function(pip, numCheckers) {
   }
   else if (pip.pip == 26) {
     h = this.checker_size / 4
-    y = pip.y + pip.h - (numCheckers + 1) * h
+    y = pip.y + pip.h - (numCheckers + space + 1) * h
   }
   else if (pip.pip == 27) {
     h = this.checker_size / 4
-    y = pip.y + numCheckers * h
+    y = pip.y + (numCheckers + space) * h 
   }
 
   return {x: x, y: y, w: w, h: h}
