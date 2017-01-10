@@ -471,6 +471,13 @@ Die.prototype.set_used = function(val) {
   }
 }
 
+Die.prototype.show_with_value = function(value) {
+  this.value = value
+  this.element.style.visibility = 'visible'
+
+  this.render()
+}
+
 //********************************************************
 // BoardElement
 
@@ -499,12 +506,5 @@ BoardElement.prototype.hide = function() {
 
 BoardElement.prototype.show = function() {
   this.element.style.visibility = 'visible'
-}
-
-BoardElement.prototype.show_with_value = function(value) {
-  this.value = value
-  this.element.style.visibility = 'visible'
-
-  this.render()
 }
 
