@@ -54,12 +54,12 @@ NOTE Dashes in example values MUST be interpreted as underscores, due to a bug i
     
 ## Move [/move]
 
-### Start a new move [POST]
-
 A move represents player action in the game; roll/move, double/redouble/beaver or pass.
 A move action can be created uncommitted and can be updated, until committed is set to true.
 (Uncommitted moves can be transferred to opponent to show checker shuffling.)
 Cube actions are committed when created.
+
+### Start a new move [POST]
 
 + Request (application/json)
     + Attributes (New Move)
