@@ -2,6 +2,11 @@ FORMAT: 1A
 
 # Backgammon gameserver 
 
+Backgammon gameserver (BGS) implements basic flow for running a backgammon match or a money session. 
+
+BGS does not contain any ACL functionality; it is designed to be used as a private service in a microservice architecture and access control is to be implemented by services using BGS. Match object contains `application data` field for storing application specific data, like owners of objects etc.
+
+NOTE Dashes in example values MUST be interpreted as underscores, due to a bug in Apiary renderer...
 
 ## Match [/match]
 
@@ -23,6 +28,19 @@ FORMAT: 1A
 + Response 200 (application/json)
     + Attributes (Match Response)
 
+### List matches [GET]
+
++ Request
+    + Attributes
+        + filter: `application_data.user_id=1` (string, optional) - Search filter.
+        Matches can be searched with application_data field, date or player names. Filters can be combined
+        with 'and' and 'or'. Operators: =, <, > and regular expressions for string fields.
+        
++ Response 200 (application/json)
+    + Attributes
+        + matches: (array) - Found matches. May be empty.
+            + (Match Response List)
+            
 ## Game [/game]
 
 ### Start a new game [POST]
@@ -34,18 +52,14 @@ FORMAT: 1A
 + Response 200 (application/json)
     + Attributes (Game Response)
     
-
-### Update game [PUT]
-
-+ Request (application/json)
-    + Attributes (Update Game)
-
-+ Response 200 (application/json)
-    + Attributes (Game Response)
-
 ## Move [/move]
 
 ### Start a new move [POST]
+
+A move represents player action in the game; roll/move, double/redouble/beaver or pass.
+A move action can be created uncommitted and can be updated, until committed is set to true.
+(Uncommitted moves can be transferred to opponent to show checker shuffling.)
+Cube actions are committed when created.
 
 + Request (application/json)
     + Attributes (New Move)
@@ -65,20 +79,54 @@ FORMAT: 1A
 
 # Data Structures
 
+## Application Data (object)
++ application_data: `{"user-id" => 1}`  (string) - Application data
+
 ## New Match (object)
-+ player_0: Mock player 0 (string, required) - Name of player 0 
++ player_0: Mock player 0 (string, required) - Name of player 0
++ player_1: Mock player 1 (string, required) - Name of player 1
++ length: 5 (number, required) - Length of the match. 0 for money session.
++ crawford: true (boolean, optional, default) - Is Crawford rule used? Ignored for money session.
++ jacoby: true (boolean, optional, default) - Is Jacoby rule used? Ignored for match.
++ beavers: true (boolean, optional, default) - Are beavers allowed? Ignored for match.
++ automatics: 1 (number, optional, default) - Number of automatic doubles allowed. Ignored for match.
++ carry_overs: true (boolean, optional, default) - Carry over automatics to successive games. Ignored for match.
++ Include Application Data
 
 ## Update Match (object)
 + id: dc52008418134ccd9ad65622bc18a524 (string, required) - Id of the match
-+ Include Match Base
++ player_0: Mock player 0 (string, optional) - Name of player 0 
++ player_1: Mock player 1 (string, optional) - Name of player 1
++ Include Application Data
 
 ## Match Response (object)
 + id: dc52008418134ccd9ad65622bc18a524 (string) - Id of the match
-+ Include Match Base
++ player_0: Mock player 0 (string) - Name of player 0 
++ player_1: Mock player 1 (string) - Name of player 1
++ date: 2017-01-01 (string) - Creation date. 
++ length: 5 (number) - Length of the match. 0 for money session.
++ crawford: true (boolean) - Is Crawford rule used? Ignored for money session.
++ jacoby: true (boolean) - Is Jacoby rule used? Ignored for match.
++ beavers: true (boolean) - Are beavers allowed? Ignored for match.
++ automatics: 1 (number) - Number of automatic doubles allowed. Ignored for match.
++ carry_overs: true (boolean) - Carry over automatics to successive games. Ignored for match.
++ games (array[Game Response]) - Related games
++ Include Application Data
+
+## Match Response List (object)
++ id: dc52008418134ccd9ad65622bc18a524 (string) - Id of the match
++ player_0: Mock player 0 (string) - Name of player 0 
++ player_1: Mock player 1 (string) - Name of player 1
++ date: 2017-01-01 (string) - Creation date. 
++ length: 5 (number) - Length of the match. 0 for money session.
++ crawford: true (boolean) - Is Crawford rule used? Ignored for money session.
++ jacoby: true (boolean) - Is Jacoby rule used? Ignored for match.
++ beavers: true (boolean) - Are beavers allowed? Ignored for match.
++ automatics: 1 (number) - Number of automatic doubles allowed. Ignored for match.
++ carry_overs: true (boolean) - Carry over automatics to successive games. Ignored for match.
+ne+ Include Application Data
 
 ## Match Base (object)
-+ player_0: Mock player 0 (string) - Name of player 0 
-+ games (array[Game Response]) - Related games
 
 ## New Game (object)
 + match_id: dc52008418134ccd9ad65622bc18a524 (string, required) - Id of the match
@@ -89,14 +137,21 @@ FORMAT: 1A
 
 ## Game Response (object)
 + id: 87d610d7f60e08939c105788a17facbf (string) - Id of the game
++ match_id: dc52008418134ccd9ad65622bc18a524 (string) - Id of the match
 + Include Game Base
++ gamestate: `{"version": 1.0, "data":"..."}` (string) - Game state after last committed move.
 
 ## Game Base (object)
-+ match_id: dc52008418134ccd9ad65622bc18a524 (string) - Id of the match
++ number: 3 (number) - Game number inside the match.
 + moves (array[Move Response]) - Related moved
 
 ## New Move (object)
 + game_id: 87d610d7f60e08939c105788a17facbf (string, required) - Id of the game
++ action: move, double, pass (enum, required) - Action for move.
++ roll: (array, optional) - Dice, if action is move. If not provided, server will fill.
+    + 3 (number)
+    + 4 (number)
++ committed: false (boolean, optional, default) - Committed or not. Once committed, cannot be updated anymore. Only move actions can be started uncommitted.
 
 ## Update Move (object)
 + id: 0505c163a95d34cbe74626affccfa425 (string, required) - Id of the move
@@ -104,7 +159,18 @@ FORMAT: 1A
 
 ## Move Response (object)
 + id: 0505c163a95d34cbe74626affccfa425 (string) - Id of the move
++ game_id: 87d610d7f60e08939c105788a17facbf (string) - Id of the game
++ number: 3 (number) - Move number inside the game.
++ action: move, double, pass (enum) - Action for move.
++ roll: (array) - Dice, if action is move.
+    + 3 (number)
+    + 4 (number)
 + Include Move Base
++ gamestate: `{"version": 1.0, "data":"..."}` (string) - Game state after the move.
 
 ## Move Base (object)
-+ game_id: 87d610d7f60e08939c105788a17facbf (string) - Id of the game
++ move_0: 24/21 (string) - First move. move-x can be set only if action is move.
++ move_1: 13/9 (string) - Second move.
++ move_2: 24/21 (string) - Third move.
++ move_3: 24/21 (string) - Fourth move.
++ committed: false (boolean) - Committed or not. Once committed, cannot be updated anymore.
