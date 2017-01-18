@@ -1,5 +1,4 @@
-var chai = require('chai')
-var expect = chai.expect
+require('./test_helper')
 
 var TestModel = require('../models/test_model')
 
