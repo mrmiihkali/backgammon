@@ -1,10 +1,15 @@
 
 require('./config/setup')
+require('./models/load')
 
-var Match = require('./models/match')
+var express = require('express')
+var app = express()
 
-var match = new Match({player_0: 'foo'})
+app.use(express.static('public'))
 
-match.save().then(function(doc) {
-  console.log(doc)
+var test_route = require('./routes/test_route')
+app.use('/test', test_route)
+
+app.listen(3000, function () {
+  console.log('Example app listening on port 3000!')
 })

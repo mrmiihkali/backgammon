@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <link id="board_style" rel="stylesheet" type="text/css" href="board_style_greenblue.css">
+  <link id="board_style" rel="stylesheet" type="text/css" href="stylesheets/board_style_greenblue.css">
 </head>
 <body>
 
-<script src="board_renderer_svg.js"></script>
-<script src="gamestate.js"></script>
+<script src="javascripts/board_renderer_svg.js"></script>
+<script src="javascripts/gamestate.js"></script>
 
 <div id="board" class="board" style="height:200px;width:300px;">
 </div>
@@ -19,7 +19,7 @@
 
 <script>
 function set_board_style(style) {
-  href = "board_style_" + style + ".css"
+  href = "stylesheets/board_style_" + style + ".css"
   var cssId = 'board_style';
   var head  = document.getElementsByTagName('head')[0];
   var link  = document.createElement('link');
