@@ -6,8 +6,6 @@ Backgammon gameserver (BGS) implements basic flow for running a backgammon match
 
 BGS does not contain any ACL functionality; it is designed to be used as a private service in a microservice architecture and access control is to be implemented by services using BGS. Match object contains `application data` field for storing application specific data, like owners of objects etc.
 
-NOTE Dashes in example values MUST be interpreted as underscores, due to a bug in Apiary renderer...
-
 ## Match [/match]
 
 ### Start a new match [POST]
@@ -19,7 +17,6 @@ NOTE Dashes in example values MUST be interpreted as underscores, due to a bug i
 + Response 200 (application/json)
     + Attributes (Match Response)
     
-
 ### Update match [PUT]
 
 + Request (application/json)
@@ -80,7 +77,7 @@ Cube actions are committed when created.
 # Data Structures
 
 ## Application Data (object)
-+ application_data: `{"user-id" => 1}`  (string) - Application data
++ `application_data`: `{"user_id" => 1}`  (string) - Application data
 
 ## New Match (object)
 + player_0: Mock player 0 (string, required) - Name of player 0
