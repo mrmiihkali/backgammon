@@ -1,11 +1,8 @@
 var bind_routes = function(routes_path) {
-  
   var runner = require('run-middleware')
   var routes = require(routes_path)
-  var self = this
-  self.routes = routes
-
-  // Insert middlewaer
+  
+  // Insert middleware
   runner(routes)
 
   var query = function(method, path, body) {
@@ -17,7 +14,7 @@ var bind_routes = function(routes_path) {
       result.headers = headers
     }
     
-    self.routes.runMiddleware(path, {method: method}, intermediate)
+    routes.runMiddleware(path, {method: method}, intermediate)
        
     return result
   }

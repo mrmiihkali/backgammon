@@ -1,7 +1,5 @@
-if (typeof(chai) == 'undefined') {
-  chai = require('chai')
-  var chaiAsPromised = require("chai-as-promised")
-  chai.use(chaiAsPromised)
-  expect = chai.expect
-}
+chai = require('chai')
+var chai_as_promised = require("chai-as-promised")
+chai.use(chai_as_promised)
+expect = chai.expect
 
