@@ -3,6 +3,7 @@
 var vorpal = require('vorpal')();
 
 require('./commands/match_commands.js')(vorpal)
+require('./commands/game_commands.js')(vorpal)
 
 if (process.argv.length > 2) {
   vorpal

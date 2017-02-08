@@ -17,8 +17,11 @@ var schema = new MONGOOSE.Schema(
 
 
 schema.statics.list = function(opts) {
-    return Match.find().limit(10).select('_id description').exec()
+    return this.model('Match').find().limit(10).select('_id description').exec()
 }
 
-var Match = MONGOOSE.model('Match', schema)
-module.exports = Match
+schema.methods.games = function() {
+    return this.model('Game').find( { match_id: this._id }).exec()
+}
+
+module.exports = MONGOOSE.model('Match', schema)
