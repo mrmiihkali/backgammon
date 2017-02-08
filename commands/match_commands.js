@@ -28,17 +28,26 @@ var match_commands = function(vorpal) {
       match.carry_overs = o['carry-overs'] == null ? true : o['carry-overs']
       match.automatics = parseInt(o.automatics) || 1
 
-      match.save().then(function(res) {
-        console.log('New match started.')
-        callback()
+      var game = new Game()
+      game.match_id = match._id
+      game.number = 0
+      game.save().then(function(res) {
+        match.save().then(function(res) {
+          console.log('New match started.')
+          callback()
+        })        
       })
+
     })
 
   vorpal
     .command('list matches', 'List matches.')
     .action(function(args, callback) {
       Match.list(null).then(function(res) {
-        console.log(res)
+        console.log('_id | description')
+        res.forEach(function(m) {
+          console.log(m._id + '\t' + m.description)
+        })
         callback()
       })
     })
@@ -49,12 +58,16 @@ var match_commands = function(vorpal) {
       Match.findOne( { _id: new ObjectId(args['match id']) } ).exec().then(function(res) {
         if (res == null) {
           console.log('Match not found.')
+          callback()
         }
         else {
           console.log(res)
+          res.games().then(function(res) {
+            console.log('Games')
+            console.log(res)
+            callback()
+          })
         }
-
-        callback()
       })
 
     })
