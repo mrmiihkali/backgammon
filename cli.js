@@ -2,12 +2,7 @@
 
 var vorpal = require('vorpal')();
 
-vorpal
-      .command('test', 'Outputs test stuff')
-      .action(function(args, callback) {
-        this.log('Testing...');
-        callback();
-      })
+require('./commands/match_commands.js')(vorpal)
 
 if (process.argv.length > 2) {
   vorpal
